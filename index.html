@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101512">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="REP ROTATION">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>REP ROTATION</title>
+<style>
+:root{color-scheme:dark;--bg:#0e1310;--panel:#171f1a;--panel2:#202b23;--line:#2b392f;--text:#f3f7f3;--muted:#a2b0a5;--green:#a7f3bd;--green2:#244c34;--amber:#f3ca79;--blue:#a9c9ff;--red:#ff9f9f;--hdr:rgba(14,19,16,.96);--btn:#102016;--f0:#ff9f9f;--f1:#f3ca79;--f2:#a9c9ff;--f3:#8be3a5}
+[data-theme=midnight]{--bg:#0b1020;--panel:#141b30;--panel2:#1d2640;--line:#29345a;--muted:#9aa6c7;--green:#9cc2ff;--green2:#233a66;--hdr:rgba(11,16,32,.96)}
+[data-theme=graphite]{--bg:#121212;--panel:#1c1c1e;--panel2:#272729;--line:#343437;--muted:#a3a3a8;--green:#e6e6e8;--green2:#3a3a3e;--btn:#121212;--hdr:rgba(18,18,18,.96)}
+[data-theme=plum]{--bg:#150e18;--panel:#211528;--panel2:#2c1d35;--line:#42294f;--muted:#b8a2c4;--green:#f0b8ff;--green2:#4a2760;--hdr:rgba(21,14,24,.96)}
+[data-theme=black]{--bg:#000;--panel:#0d0d0d;--panel2:#171717;--line:#262626;--muted:#9a9a9a;--green:#ffd479;--green2:#33290f;--hdr:rgba(0,0,0,.96)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{padding:22px 18px 14px;position:sticky;top:0;background:var(--hdr);backdrop-filter:blur(14px);z-index:5;border-bottom:1px solid var(--line)}
+.brand{display:flex;justify-content:space-between;align-items:center}.brand h1{font-size:23px;letter-spacing:1.3px;margin:0;font-weight:850}.sub{color:var(--muted);font-size:11px;letter-spacing:1.3px;margin-top:4px}
+main{max-width:760px;margin:auto;padding:16px 14px 100px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:4px 0 20px}.stat,.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:17px}.stat{padding:12px}.stat strong{font-size:23px;display:block}.stat span{font-size:11px;color:var(--muted)}
+h2{font-size:16px;margin:18px 2px 10px}.hint{color:var(--muted);font-size:13px;line-height:1.5}.card{padding:15px;margin:10px 0}.cardhead{display:flex;justify-content:space-between;align-items:center;gap:8px}.card h3{font-size:17px;margin:0}.small{font-size:12px;color:var(--muted);margin-top:4px}
+.pill{font-size:11px;padding:6px 9px;border-radius:30px;background:var(--green2);color:var(--green);white-space:nowrap}.pill.rest{background:#4b3a1c;color:var(--amber)}.pill.blue{background:#24364e;color:var(--blue)}
+.exercise{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.exercise:last-child{border:0}.exercise input{width:19px;height:19px;accent-color:var(--green);flex:none}.exname{flex:1;min-width:0}.exname b{display:block;font-size:14px;font-weight:600}.exname small{display:block;color:var(--muted);font-size:11px;margin-top:3px}.tag{font-size:10px;color:var(--green);border:1px solid #426b4d;border-radius:20px;padding:4px 7px}
+button,.filelabel{border:0;border-radius:12px;padding:11px 14px;font-weight:700;font-size:13px;background:var(--green);color:var(--btn);cursor:pointer}.secondary{background:var(--panel2);border:1px solid var(--line);color:var(--text)}.danger{background:#422626;color:#ffb4b4}.full{width:100%;margin-top:10px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions button{flex:1}
+input[type=text],select{width:100%;padding:12px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;color:var(--text);font:inherit;font-size:16px;margin:6px 0 10px}
+.formrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.toolbar button{flex:1}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--hdr);border-top:1px solid var(--line);display:flex;justify-content:center;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:8}
+nav button{background:transparent;color:var(--muted);flex:1;max-width:180px;padding:10px 5px}nav button.active{background:var(--green2);color:var(--green)}
+.view{display:none}.view.active{display:block}.empty{padding:20px;text-align:center;color:var(--muted)}.historyrow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.historyrow small{color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:24px 8px}
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:18px;width:calc(100% - 32px);max-width:440px}dialog::backdrop{background:#000b}dialog h3{margin-top:0}
+@media(min-width:650px){main{padding-left:22px;padding-right:22px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid .card{margin:0 0 10px}}
+.f0{--c:var(--f0)}.f1{--c:var(--f1)}.f2{--c:var(--f2)}.f3{--c:var(--f3)}
+.fpill{font-size:11px;padding:6px 10px;border-radius:30px;border:1px solid var(--c);color:var(--c);white-space:nowrap}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:3px}
+.exname small.fs{color:var(--c)}.exname small.note{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mut{color:var(--muted)}
+.plan{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.plan label,.nums label{display:block;font-size:11px;color:var(--muted)}.plan select{margin:4px 0 0;padding:10px 6px}
+#bar{position:fixed;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));display:flex;justify-content:center;z-index:7;pointer-events:none}#bar button{pointer-events:auto;padding:13px 22px;border-radius:30px;box-shadow:0 6px 22px #0009}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translate(-50%,-120px);background:var(--green);color:var(--btn);font-weight:700;font-size:13px;padding:10px 18px;border-radius:30px;z-index:30;transition:transform .25s}#toast.on{transform:translate(-50%,0)}
+dialog{max-height:88vh;overflow:auto}.srow{padding:12px 0;border-bottom:1px solid var(--line)}.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.nums input,.srow textarea{width:100%;padding:10px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit;font-size:16px;margin-top:4px}.srow textarea{resize:none;margin:0}
+.slot{display:inline-block;background:var(--green);color:var(--btn);border-radius:6px;padding:1px 7px;margin-right:7px;font-size:12px}
+.mnav{display:flex;align-items:center;justify-content:space-between}.mnav h2{margin:14px 0 10px}.mnav button{padding:8px 16px}
+.hero{background:var(--green);color:var(--btn);border-radius:22px;padding:22px 20px;margin:4px 0 12px}.hero .big{font-size:56px;font-weight:900;line-height:1.05;letter-spacing:-1px;margin:4px 0}.hero .big span{font-size:22px;font-weight:700;letter-spacing:0}.emo{font-size:30px;line-height:1.35;word-break:break-all;margin:8px 0}.hero p{margin:6px 0 0}
+.bar{display:grid;grid-template-columns:86px 1fr auto;align-items:center;gap:8px;font-size:13px;margin:8px 0}.bar i{display:block;height:10px;border-radius:6px;background:var(--green)}.bar em{font-style:normal;color:var(--muted);font-size:12px}
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 16px}.sw{border:2px solid var(--line);text-align:left}.sw.on{border-color:var(--green)}nav button{font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="brand"><div><h1>REP ROTATION</h1><div class="sub">YOUR TRAINING. YOUR ROTATION.</div></div><div style="font-size:25px">◈</div></div></header>
+<main>
+<section id="today" class="view active">
+ <div class="stats"><div class="stat"><strong id="stFresh">0</strong><span>FRESH GROUPS</span></div><div class="stat"><strong id="stSess">0</strong><span>WORKOUTS THIS MONTH</span></div><div class="stat"><strong id="stVol">0</strong><span>KG THIS MONTH</span></div></div>
+ <div id="banner"></div>
+ <div class="panel" style="padding:14px"><div class="cardhead"><h3 style="margin:0">Plan a session</h3><span class="small">optional</span></div><p class="hint" style="margin:6px 0 0">Choose two main groups and a filler to get five exercises in A·B·C·A·B order.</p><div class="plan"><label>Main A<select id="planA"></select></label><label>Main B<select id="planB"></select></label><label>Filler C<select id="planC"></select></label></div><button class="full" id="planBtn">Build session</button></div>
+ <h2>Pick exercises</h2><p class="hint">Tap any exercise to add it to today's session. Colours show how recently you trained it; suggestions are just a guide and nothing is ever locked.</p>
+ <div id="groups" class="grid"></div>
+</section>
+<section id="library" class="view">
+ <h2>Exercise library</h2><p class="hint">Add, rename or remove exercises. Removing an exercise also removes its recorded history.</p>
+ <div class="panel" style="padding:14px"><label class="small" for="addGroup">MUSCLE GROUP</label><select id="addGroup"></select><label class="small" for="newExercise">EXERCISE NAME</label><input id="newExercise" type="text" placeholder="e.g. Incline cable fly"><button class="full" id="addBtn">＋ Add exercise</button></div>
+ <div id="libraryGroups"></div>
+</section>
+<section id="history" class="view">
+ <h2>Training history</h2><p class="hint">See when each exercise was last performed and how often you've trained it.</p>
+ <div id="historyContent" class="panel" style="padding:14px"></div>
+</section>
+<section id="recap" class="view"><div id="recapContent"></div></section>
+<section id="settings" class="view">
+ <h2>Settings & backup</h2>
+ <div class="panel" style="padding:15px">
+  <h3 style="margin-top:0">Appearance</h3><p class="hint">Choose a background for the whole app.</p><div id="themes" class="themes"></div>
+  <h3>Data backup</h3><p class="hint">Your data is stored locally in this browser on this iPhone. Export a backup regularly, especially before changing phones or clearing Safari website data.</p>
+  <button class="full" id="exportBtn">↓ Export backup</button>
+  <label class="filelabel full" style="display:block;text-align:center;margin-top:9px">↑ Import backup<input id="importFile" type="file" accept="application/json" hidden></label>
+  <div class="actions"><button class="secondary" id="resetBtn">Reset demo data</button></div>
+ </div>
+ <div class="panel" style="padding:15px;margin-top:12px"><h3 style="margin-top:0">How it works</h3><p class="hint">Nothing is ever locked. Each exercise shows when you last did it: Just done (under 2 days), Recently done (2–4 days), Rested (4–7 days) or Fresh (a week or more, or never). The two stalest exercises in each group are suggested. Working max is the heaviest weight you've logged for an exercise, so it reflects your usual working weight rather than a one-rep max.</p></div>
+</section>
+<footer>REP ROTATION · Local-first training tracker</footer>
+</main>
+<nav><button class="active" data-view="today">Today</button><button data-view="library">Library</button><button data-view="history">History</button><button data-view="recap">Recap</button><button data-view="settings">Settings</button></nav>
+<dialog id="sheet"></dialog><div id="bar"></div><div id="toast"></div>
+<script>
+const KEY='rep-rotation-v1',DAY=864e5,$=id=>document.getElementById(id);
+const THEMES={forest:['Forest','#0e1310','#a7f3bd'],midnight:['Midnight','#0b1020','#9cc2ff'],graphite:['Graphite','#121212','#e6e6e8'],plum:['Plum','#150e18','#f0b8ff'],black:['OLED black','#000000','#ffd479']};
+const SN=['Just done','Recently done','Rested','Fresh'],SMALL=['Shoulders','Abs','Forearms','Triceps','Biceps'];
+const EQ=[['🍌','bananas',.12],['🐈','cats',4.5],['🐕','Labradors',30],['🛵','scooters',110],['🐻','polar bears',450],['🚗','Mini Coopers',1200],['🐘','elephants',6000],['🚌','double-decker buses',12000],['✈️','Boeing 737s',41000],['🐋','blue whales',150000]];
+const seed=[
+{name:'Chest',exercises:['Bench Press','Incline Dumbbell Press','Cable Flys','Pec Deck','Chest Dips']},
+{name:'Back',exercises:['Lat Pulldown','Seated Cable Row','Pull-ups','Single-arm Dumbbell Row','Straight-arm Pulldown']},
+{name:'Shoulders',exercises:['Shoulder Press','Lateral Raises','Front Raises','Reverse Pec Deck','Face Pulls']},
+{name:'Biceps',exercises:['Dumbbell Curls','Hammer Curls','Preacher Curls','Cable Curls']},
+{name:'Triceps',exercises:['Tricep Pushdowns','Overhead Extensions','Skull Crushers','Close-grip Bench Press']},
+{name:'Abs',exercises:['Cable Crunches','Hanging Leg Raises','Plank','Ab Wheel Rollouts']},
+{name:'Forearms',exercises:['Wrist Curls','Reverse Wrist Curls',"Farmer's Carries",'Dead Hangs']}
+];
+const makeInitial=()=>({version:1,groups:seed.map((g,i)=>({id:'g'+i,name:g.name,exercises:g.exercises.map((n,j)=>({id:`e${i}_${j}`,name:n,lastDoneAt:null,count:0,history:[]}))}))});
+let data=load(),sel=[],rm={y:new Date().getFullYear(),m:new Date().getMonth()};
+function migrate(x){x.version=2;x.sessions=x.sessions||[];x.prefs=Object.assign({theme:'forest',plan:['g1','g3','auto']},x.prefs);x.groups.forEach(g=>g.exercises.forEach(e=>{e.history=e.history||[];e.count=e.count||0}));return x}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&Array.isArray(x.groups))return migrate(x)}catch(e){}return migrate(makeInitial())}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmt(ts){return new Date(ts).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})}
+const stage=t=>{if(!t)return 3;const d=(Date.now()-t)/DAY;return d<2?0:d<4?1:d<7?2:3};
+const ago=t=>{const d=Math.floor((Date.now()-t)/DAY);return d<1?'today':d==1?'yesterday':d<14?d+' days ago':Math.floor(d/7)+' weeks ago'};
+const gLast=g=>Math.max(0,...g.exercises.map(e=>e.lastDoneAt||0)),gStage=g=>stage(gLast(g));
+const stale=g=>[...g.exercises].sort((a,b)=>(a.lastDoneAt||0)-(b.lastDoneAt||0));
+const suggested=g=>stale(g).slice(0,2).map(e=>e.id);
+const nf=n=>Math.round(n).toLocaleString(),vol=a=>a.reduce((n,i)=>n+(+i.kg||0)*(+i.reps||0)*(+i.sets||0),0);
+const inMonth=(y,m)=>data.sessions.filter(s=>{const d=new Date(s.t);return d.getFullYear()==y&&d.getMonth()==m});
+const mName=(y,m)=>new Date(y,m,1).toLocaleDateString(undefined,{month:'long',year:'numeric'});
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2400)}
+function mk(id,tag){const e=findExercise(id).ex,L=e.last||{};return{id,tag,kg:L.kg||'',reps:L.reps||10,sets:L.sets||3,note:e.note||''}}
+function render(){
+ sel=sel.filter(s=>findExercise(s.id));
+ const d=new Date(),pm=d.getMonth()?{y:d.getFullYear(),m:d.getMonth()-1}:{y:d.getFullYear()-1,m:11},cur=inMonth(d.getFullYear(),d.getMonth());
+ $('stFresh').textContent=data.groups.filter(g=>gStage(g)==3).length;$('stSess').textContent=cur.length;$('stVol').textContent=nf(cur.reduce((n,s)=>n+vol(s.items),0));
+ $('banner').innerHTML=d.getDate()<=5&&inMonth(pm.y,pm.m).length?`<button class="secondary full" style="margin:0 0 12px" id="recapBtn">🎉 Your ${mName(pm.y,pm.m).split(' ')[0]} recap is ready</button>`:'';
+ if($('recapBtn'))$('recapBtn').onclick=()=>{rm=pm;renderRecap();go('recap')};
+ $('groups').innerHTML=data.groups.map(g=>{const rec=suggested(g),n=gStage(g),l=gLast(g);
+  return `<article class="card"><div class="cardhead"><div><h3>${esc(g.name)}</h3><div class="small">${g.exercises.length} exercises · ${l?'Last trained '+ago(l):'Not trained yet'}</div></div><span class="fpill f${n}">${SN[n]}</span></div>
+  <div style="margin-top:8px">${g.exercises.map(e=>{const s=stage(e.lastDoneAt);return `<label class="exercise"><input type="checkbox" data-add="${e.id}" ${sel.some(x=>x.id==e.id)?'checked':''}><span class="exname"><b>${esc(e.name)}</b><small class="fs f${s}"><i class="dot"></i> ${e.lastDoneAt?SN[s]+' · '+ago(e.lastDoneAt):'Fresh · never done'}${e.max?`<span class="mut"> · Working max ${e.max} kg</span>`:''}</small>${e.note?`<small class="note">✎ ${esc(e.note)}</small>`:''}</span>${rec.includes(e.id)?'<span class="tag">SUGGESTED</span>':''}</label>`}).join('')}</div></article>`}).join('');
+ document.querySelectorAll('[data-add]').forEach(el=>el.onchange=()=>{const id=el.dataset.add;if(el.checked)sel.push(mk(id));else sel=sel.filter(s=>s.id!==id);renderBar()});
+ renderBar();renderLibrary();renderHistory();renderRecap();renderThemes();fillGroups();
+}
+function renderBar(){$('bar').innerHTML=sel.length?`<button id="openSheet">${sel.length} selected · Review &amp; log</button>`:'';if($('openSheet'))$('openSheet').onclick=openSheet}
+function build(){
+ const G=id=>data.groups.find(g=>g.id==id),[a,b,c]=data.prefs.plan,A=G(a),B=G(b);
+ if(!A||!B||A===B)return toast('Pick two different main groups');
+ const C=c=='auto'?data.groups.filter(g=>SMALL.includes(g.name)&&g!==A&&g!==B&&g.exercises.length).sort((x,y)=>gLast(x)-gLast(y))[0]:G(c),t=new Set(),
+ pick=g=>{const e=g&&stale(g).find(x=>!t.has(x.id));if(e)t.add(e.id);return e};
+ sel=[A,B,C,A,B].map(pick).map((e,i)=>e&&mk(e.id,'ABCAB'[i])).filter(Boolean);
+ render();openSheet();
+}
+function openSheet(){renderSheet();if(sel.length)$('sheet').showModal()}
+function renderSheet(){
+ const el=$('sheet');if(!sel.length){el.close();return}
+ el.innerHTML=`<div class="cardhead"><h3 style="margin:0">Today's session</h3><button class="secondary" style="padding:7px 12px" id="shClose">Close</button></div>`+sel.map((s,i)=>{const {g,ex}=findExercise(s.id);return `<div class="srow"><div class="cardhead"><div class="exname"><b>${s.tag?`<span class="slot">${s.tag}</span>`:''}${esc(ex.name)}</b><small>${esc(g.name)}${ex.max?' · Working max '+ex.max+' kg':''}</small></div><button class="danger" style="padding:6px 11px" data-rm="${i}">×</button></div><div class="nums">${['kg','reps','sets'].map(k=>`<label>${k}<input type="number" inputmode="decimal" step="any" min="0" data-i="${i}" data-k="${k}" value="${s[k]}"></label>`).join('')}</div><textarea rows="2" data-i="${i}" data-k="note" placeholder="Notes for next time (optional)">${esc(s.note)}</textarea></div>`}).join('')+`<button class="full" id="logBtn">Log workout · <span id="vtot">${nf(vol(sel))}</span> kg</button>`;
+ el.querySelectorAll('[data-k]').forEach(i=>i.oninput=()=>{sel[i.dataset.i][i.dataset.k]=i.value;$('vtot').textContent=nf(vol(sel))});
+ el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{sel.splice(+b.dataset.rm,1);renderSheet();render()});
+ $('shClose').onclick=()=>el.close();$('logBtn').onclick=logSession;
+}
+function logSession(){
+ const now=Date.now(),items=[];
+ sel.forEach(s=>{const {g,ex}=findExercise(s.id),kg=+s.kg||0,reps=+s.reps||0,sets=+s.sets||0;
+  ex.lastDoneAt=now;ex.count=(ex.count||0)+1;ex.history=[...(ex.history||[]),now];ex.last={kg,reps,sets};ex.note=s.note.trim();if(kg>(ex.max||0))ex.max=kg;
+  items.push({n:ex.name,g:g.name,kg,reps,sets})});
+ data.sessions.push({t:now,items});sel=[];save();$('sheet').close();render();toast('Workout logged ✓');
+}
+function renderRecap(){
+ const {y,m}=rm,S=inMonth(y,m),it=S.flatMap(s=>s.items),v=vol(it),py=m?y:y-1,pmn=(m+11)%12,pv=inMonth(py,pmn).reduce((n,s)=>n+vol(s.items),0),now=new Date(),isNow=y==now.getFullYear()&&m==now.getMonth();
+ const f=data.sessions.length?new Date(Math.min(...data.sessions.map(s=>s.t))):now,canBack=y*12+m>f.getFullYear()*12+f.getMonth();
+ let h=`<div class="mnav"><button class="secondary" id="rPrev" ${canBack?'':'disabled'}>‹</button><h2>${mName(y,m)}${isNow?' · so far':''}</h2><button class="secondary" id="rNext" ${isNow?'disabled':''}>›</button></div>`;
+ if(!v)h+='<div class="panel empty">No weights logged this month yet.<br>Log a workout with kg, reps and sets to build your recap.</div>';
+ else{
+  const q=EQ.filter(e=>v/e[2]>=1).pop()||EQ[0],n=v/q[2],cnt=Math.max(1,Math.min(12,Math.round(n))),G={},E={};
+  it.forEach(i=>{G[i.g]=(G[i.g]||0)+i.sets;E[i.n]=(E[i.n]||0)+1});
+  const gs=Object.entries(G).sort((a,b)=>b[1]-a[1]),mx=gs[0][1],top=it.reduce((a,b)=>b.kg>a.kg?b:a),fav=Object.entries(E).sort((a,b)=>b[1]-a[1])[0],d=pv?Math.round((v-pv)/pv*100):null;
+  h+=`<div class="hero"><div class="small" style="color:inherit;opacity:.75">Total weight lifted</div><div class="big">${nf(v)}<span> kg</span></div><div class="emo">${q[0].repeat(cnt)}${n>12?'…':''}</div><p>That's about <b>${n<10?n.toFixed(1):nf(n)} ${q[1]}</b>.${d===null?'':` ${d>=0?'▲':'▼'} ${Math.abs(d)}% vs ${mName(py,pmn).split(' ')[0]}.`}</p></div>
+  <div class="stats"><div class="stat"><strong>${S.length}</strong><span>WORKOUTS</span></div><div class="stat"><strong>${nf(it.reduce((n,i)=>n+i.sets,0))}</strong><span>SETS</span></div><div class="stat"><strong>${nf(it.reduce((n,i)=>n+i.sets*i.reps,0))}</strong><span>REPS</span></div></div>
+  <div class="panel" style="padding:14px"><h3 style="margin:0 0 10px">Most trained</h3>${gs.map(([k,x])=>`<div class="bar"><span>${esc(k)}</span><i style="width:${x/mx*100}%"></i><em>${x} sets</em></div>`).join('')}</div>
+  <div class="stats" style="grid-template-columns:1fr 1fr;margin-top:10px"><div class="stat"><strong>${top.kg} kg</strong><span>Heaviest lift · ${esc(top.n)}</span></div><div class="stat"><strong>${fav[1]}×</strong><span>Favourite · ${esc(fav[0])}</span></div></div>`}
+ $('recapContent').innerHTML=h;
+ $('rPrev').onclick=()=>{rm={y:py,m:pmn};renderRecap()};$('rNext').onclick=()=>{rm=m==11?{y:y+1,m:0}:{y,m:m+1};renderRecap()};
+}
+function renderThemes(){
+ const T=THEMES[data.prefs.theme]||THEMES.forest;document.documentElement.dataset.theme=data.prefs.theme;document.querySelector('meta[name=theme-color]').content=T[1];
+ $('themes').innerHTML=Object.entries(THEMES).map(([k,[n,bg,ac]])=>`<button class="sw${k==data.prefs.theme?' on':''}" data-th="${k}" style="background:${bg};color:${ac}">● ${n}</button>`).join('');
+ document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{data.prefs.theme=b.dataset.th;save();renderThemes()});
+}
+function fillGroups(){const o=data.groups.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join(''),ag=$('addGroup').value;$('addGroup').innerHTML=o;if(ag)$('addGroup').value=ag;
+ [['planA',o],['planB',o],['planC','<option value="auto">Auto (small group)</option>'+o]].forEach(([id,h],i)=>{const el=$(id);el.innerHTML=h;el.value=data.prefs.plan[i];el.onchange=()=>{data.prefs.plan[i]=el.value;save()}})}
+function renderLibrary(){document.getElementById('libraryGroups').innerHTML=data.groups.map(g=>`<div class="card"><div class="cardhead"><h3>${esc(g.name)}</h3><span class="small">${g.exercises.length} exercises</span></div>${g.exercises.map(e=>`<div class="exercise"><span class="exname"><b>${esc(e.name)}</b><small>${e.count||0} completed · ${e.lastDoneAt?'Last: '+fmt(e.lastDoneAt):'Not yet performed'}${e.max?' · Working max '+e.max+' kg':''}</small>${e.note?`<small>✎ ${esc(e.note)}</small>`:''}</span><button class="secondary" style="padding:7px 10px" data-rename="${e.id}">Edit</button><button class="danger" style="padding:7px 10px" data-delete="${e.id}">×</button></div>`).join('')}</div>`).join('');
+ document.querySelectorAll('[data-rename]').forEach(b=>b.onclick=()=>{const e=findExercise(b.dataset.rename);const n=prompt('Rename exercise:',e.ex.name);if(n&&n.trim()){e.ex.name=n.trim();save();render()}});
+ document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{const x=findExercise(b.dataset.delete);if(confirm(`Delete ${x.ex.name} and its history?`)){x.g.exercises=x.g.exercises.filter(e=>e.id!==x.ex.id);sel=sel.filter(s=>s.id!==x.ex.id);save();render()}});
+}
+function findExercise(id){for(const g of data.groups){const ex=g.exercises.find(e=>e.id===id);if(ex)return {g,ex}}}
+function renderHistory(){const all=data.groups.flatMap(g=>g.exercises.map(e=>({g,e}))).filter(x=>x.e.lastDoneAt).sort((a,b)=>b.e.lastDoneAt-a.e.lastDoneAt);document.getElementById('historyContent').innerHTML=all.length?all.map(({g,e})=>`<div class="historyrow"><span><b>${esc(e.name)}</b><br><small>${esc(g.name)} · ${e.count||0} completed${e.max?' · Working max '+e.max+' kg':''}</small></span><span style="text-align:right">${fmt(e.lastDoneAt)}</span></div>`).join(''):'<div class="empty">No workouts logged yet.<br>Complete your first session to start building history.</div>'}
+document.getElementById('addBtn').onclick=()=>{const name=document.getElementById('newExercise').value.trim(),id=document.getElementById('addGroup').value;if(!name)return;const g=data.groups.find(x=>x.id===id);if(g.exercises.some(e=>e.name.toLowerCase()===name.toLowerCase())){alert('That exercise is already in this group.');return}g.exercises.push({id:'custom_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,lastDoneAt:null,count:0,history:[]});document.getElementById('newExercise').value='';save();render()};
+function go(v){document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view==v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==v));window.scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
+document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='rep-rotation-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url)};
+document.getElementById('importFile').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!Array.isArray(x.groups)||!x.groups.every(g=>g.name&&Array.isArray(g.exercises)))throw Error();if(confirm('Replace your current REP ROTATION data with this backup?')){data=migrate(x);save();sel=[];render();alert('Backup restored.')}}catch(e){alert('That backup file could not be read.')}ev.target.value=''};
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Reset all exercise history and custom exercises to the original demo library? Export a backup first if needed.')){data=migrate(makeInitial());sel=[];save();render()}};
+if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+$('planBtn').onclick=build;render();document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
+</script>
+</body></html>
