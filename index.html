@@ -46,6 +46,7 @@ dialog{max-height:88vh;overflow:auto}.srow{padding:12px 0;border-bottom:1px soli
 .hero{background:var(--green);color:var(--btn);border-radius:22px;padding:22px 20px;margin:4px 0 12px}.hero .big{font-size:56px;font-weight:900;line-height:1.05;letter-spacing:-1px;margin:4px 0}.hero .big span{font-size:22px;font-weight:700;letter-spacing:0}.emo{font-size:30px;line-height:1.35;word-break:break-all;margin:8px 0}.hero p{margin:6px 0 0}
 .bar{display:grid;grid-template-columns:86px 1fr auto;align-items:center;gap:8px;font-size:13px;margin:8px 0}.bar i{display:block;height:10px;border-radius:6px;background:var(--green)}.bar em{font-style:normal;color:var(--muted);font-size:12px}
 .themes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 16px}.sw{border:2px solid var(--line);text-align:left}.sw.on{border-color:var(--green)}nav button{font-size:12px}
+.srow select{margin:8px 0 2px;padding:10px}.srow.done{opacity:.65}.srow.done b{color:var(--green)}
 </style>
 </head>
 <body>
@@ -54,7 +55,7 @@ dialog{max-height:88vh;overflow:auto}.srow{padding:12px 0;border-bottom:1px soli
 <section id="today" class="view active">
  <div class="stats"><div class="stat"><strong id="stFresh">0</strong><span>FRESH GROUPS</span></div><div class="stat"><strong id="stSess">0</strong><span>WORKOUTS THIS MONTH</span></div><div class="stat"><strong id="stVol">0</strong><span>KG THIS MONTH</span></div></div>
  <div id="banner"></div>
- <div class="panel" style="padding:14px"><div class="cardhead"><h3 style="margin:0">Plan a session</h3><span class="small">optional</span></div><p class="hint" style="margin:6px 0 0">Choose two main groups and a filler to get five exercises in A·B·C·A·B order.</p><div class="plan"><label>Main A<select id="planA"></select></label><label>Main B<select id="planB"></select></label><label>Filler C<select id="planC"></select></label></div><button class="full" id="planBtn">Build session</button></div>
+ <div class="panel" style="padding:14px"><div class="cardhead"><h3 style="margin:0">Plan a session</h3><span class="small">optional</span></div><p class="hint" style="margin:6px 0 0">Choose two main groups and a filler to get five slots in A·B·C·A·B order, then pick an exercise for each.</p><div class="plan"><label>Main A<select id="planA"></select></label><label>Main B<select id="planB"></select></label><label>Filler C<select id="planC"></select></label></div><button class="full" id="planBtn">Build session</button></div>
  <h2>Pick exercises</h2><p class="hint">Tap any exercise to add it to today's session. Colours show how recently you trained it; suggestions are just a guide and nothing is ever locked.</p>
  <div id="groups" class="grid"></div>
 </section>
@@ -86,7 +87,7 @@ dialog{max-height:88vh;overflow:auto}.srow{padding:12px 0;border-bottom:1px soli
 <script>
 const KEY='rep-rotation-v1',DAY=864e5,$=id=>document.getElementById(id);
 const THEMES={forest:['Forest','#0e1310','#a7f3bd'],midnight:['Midnight','#0b1020','#9cc2ff'],graphite:['Graphite','#121212','#e6e6e8'],plum:['Plum','#150e18','#f0b8ff'],black:['OLED black','#000000','#ffd479']};
-const SN=['Just done','Recently done','Rested','Fresh'],SMALL=['Shoulders','Abs','Forearms','Triceps','Biceps'];
+const EM=['🔴','🟡','🔵','🟢'],SN=['Just done','Recently done','Rested','Fresh'],SMALL=['Shoulders','Abs','Forearms','Triceps','Biceps'];
 const EQ=[['🍌','bananas',.12],['🐈','cats',4.5],['🐕','Labradors',30],['🛵','scooters',110],['🐻','polar bears',450],['🚗','Mini Coopers',1200],['🐘','elephants',6000],['🚌','double-decker buses',12000],['✈️','Boeing 737s',41000],['🐋','blue whales',150000]];
 const seed=[
 {name:'Chest',exercises:['Bench Press','Incline Dumbbell Press','Cable Flys','Pec Deck','Chest Dips']},
@@ -98,10 +99,10 @@ const seed=[
 {name:'Forearms',exercises:['Wrist Curls','Reverse Wrist Curls',"Farmer's Carries",'Dead Hangs']}
 ];
 const makeInitial=()=>({version:1,groups:seed.map((g,i)=>({id:'g'+i,name:g.name,exercises:g.exercises.map((n,j)=>({id:`e${i}_${j}`,name:n,lastDoneAt:null,count:0,history:[]}))}))});
-let data=load(),sel=[],rm={y:new Date().getFullYear(),m:new Date().getMonth()};
-function migrate(x){x.version=2;x.sessions=x.sessions||[];x.prefs=Object.assign({theme:'forest',plan:['g1','g3','auto']},x.prefs);x.groups.forEach(g=>g.exercises.forEach(e=>{e.history=e.history||[];e.count=e.count||0}));return x}
+let data=load(),sel=data.live,fz=0,rm={y:new Date().getFullYear(),m:new Date().getMonth()};
+function migrate(x){x.version=2;x.sessions=x.sessions||[];x.live=x.live||[];x.liveT=x.liveT||0;x.liveSid=x.liveSid||0;if(x.liveT&&Date.now()-x.liveT>504e5){x.live=[];x.liveT=0;x.liveSid=0}x.prefs=Object.assign({theme:'forest',plan:['g1','g3','auto']},x.prefs);x.groups.forEach(g=>g.exercises.forEach(e=>{e.history=e.history||[];e.count=e.count||0}));return x}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&Array.isArray(x.groups))return migrate(x)}catch(e){}return migrate(makeInitial())}
-function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function save(){data.live=sel;if(!sel.length){data.liveT=0;data.liveSid=0}else if(!data.liveT)data.liveT=Date.now();localStorage.setItem(KEY,JSON.stringify(data))}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function fmt(ts){return new Date(ts).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})}
 const stage=t=>{if(!t)return 3;const d=(Date.now()-t)/DAY;return d<2?0:d<4?1:d<7?2:3};
@@ -113,43 +114,66 @@ const nf=n=>Math.round(n).toLocaleString(),vol=a=>a.reduce((n,i)=>n+(+i.kg||0)*(
 const inMonth=(y,m)=>data.sessions.filter(s=>{const d=new Date(s.t);return d.getFullYear()==y&&d.getMonth()==m});
 const mName=(y,m)=>new Date(y,m,1).toLocaleDateString(undefined,{month:'long',year:'numeric'});
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2400)}
-function mk(id,tag){const e=findExercise(id).ex,L=e.last||{};return{id,tag,kg:L.kg||'',reps:L.reps||10,sets:L.sets||3,note:e.note||''}}
+function mk(id,tag,gid){const f=id&&findExercise(id),e=f?f.ex:{},L=e.last||{};return{id,tag,gid,kg:L.kg||'',reps:L.reps||10,sets:L.sets||3,note:e.note||'',done:0}}
 function render(){
- sel=sel.filter(s=>findExercise(s.id));
+ sel=sel.filter(s=>!s.id||findExercise(s.id));
  const d=new Date(),pm=d.getMonth()?{y:d.getFullYear(),m:d.getMonth()-1}:{y:d.getFullYear()-1,m:11},cur=inMonth(d.getFullYear(),d.getMonth());
  $('stFresh').textContent=data.groups.filter(g=>gStage(g)==3).length;$('stSess').textContent=cur.length;$('stVol').textContent=nf(cur.reduce((n,s)=>n+vol(s.items),0));
  $('banner').innerHTML=d.getDate()<=5&&inMonth(pm.y,pm.m).length?`<button class="secondary full" style="margin:0 0 12px" id="recapBtn">🎉 Your ${mName(pm.y,pm.m).split(' ')[0]} recap is ready</button>`:'';
  if($('recapBtn'))$('recapBtn').onclick=()=>{rm=pm;renderRecap();go('recap')};
  $('groups').innerHTML=data.groups.map(g=>{const rec=suggested(g),n=gStage(g),l=gLast(g);
   return `<article class="card"><div class="cardhead"><div><h3>${esc(g.name)}</h3><div class="small">${g.exercises.length} exercises · ${l?'Last trained '+ago(l):'Not trained yet'}</div></div><span class="fpill f${n}">${SN[n]}</span></div>
-  <div style="margin-top:8px">${g.exercises.map(e=>{const s=stage(e.lastDoneAt);return `<label class="exercise"><input type="checkbox" data-add="${e.id}" ${sel.some(x=>x.id==e.id)?'checked':''}><span class="exname"><b>${esc(e.name)}</b><small class="fs f${s}"><i class="dot"></i> ${e.lastDoneAt?SN[s]+' · '+ago(e.lastDoneAt):'Fresh · never done'}${e.max?`<span class="mut"> · Working max ${e.max} kg</span>`:''}</small>${e.note?`<small class="note">✎ ${esc(e.note)}</small>`:''}</span>${rec.includes(e.id)?'<span class="tag">SUGGESTED</span>':''}</label>`}).join('')}</div></article>`}).join('');
- document.querySelectorAll('[data-add]').forEach(el=>el.onchange=()=>{const id=el.dataset.add;if(el.checked)sel.push(mk(id));else sel=sel.filter(s=>s.id!==id);renderBar()});
+  <div style="margin-top:8px">${g.exercises.map(e=>{const s=stage(e.lastDoneAt);return `<label class="exercise"><input type="checkbox" data-add="${e.id}" ${(r=>r?'checked'+(r.done?' disabled':''):'')(sel.find(x=>x.id==e.id))}><span class="exname"><b>${esc(e.name)}</b><small class="fs f${s}"><i class="dot"></i> ${e.lastDoneAt?SN[s]+' · '+ago(e.lastDoneAt):'Fresh · never done'}${e.max?`<span class="mut"> · Working max ${e.max} kg</span>`:''}</small>${e.note?`<small class="note">✎ ${esc(e.note)}</small>`:''}</span>${rec.includes(e.id)?'<span class="tag">SUGGESTED</span>':''}</label>`}).join('')}</div></article>`}).join('');
+ document.querySelectorAll('[data-add]').forEach(el=>el.onchange=()=>{const id=el.dataset.add;if(el.checked)sel.push(mk(id));else sel=sel.flatMap(s=>s.id!==id?[s]:s.gid?[mk('',s.tag,s.gid)]:[]);renderBar()});
  renderBar();renderLibrary();renderHistory();renderRecap();renderThemes();fillGroups();
 }
-function renderBar(){$('bar').innerHTML=sel.length?`<button id="openSheet">${sel.length} selected · Review &amp; log</button>`:'';if($('openSheet'))$('openSheet').onclick=openSheet}
+function renderBar(){const d=sel.filter(s=>s.done).length;$('bar').innerHTML=sel.length?`<button id="openSheet">Session · ${d}/${sel.length} done</button>`:'';if($('openSheet'))$('openSheet').onclick=openSheet;save()}
 function build(){
  const G=id=>data.groups.find(g=>g.id==id),[a,b,c]=data.prefs.plan,A=G(a),B=G(b);
  if(!A||!B||A===B)return toast('Pick two different main groups');
- const C=c=='auto'?data.groups.filter(g=>SMALL.includes(g.name)&&g!==A&&g!==B&&g.exercises.length).sort((x,y)=>gLast(x)-gLast(y))[0]:G(c),t=new Set(),
- pick=g=>{const e=g&&stale(g).find(x=>!t.has(x.id));if(e)t.add(e.id);return e};
- sel=[A,B,C,A,B].map(pick).map((e,i)=>e&&mk(e.id,'ABCAB'[i])).filter(Boolean);
+ if(sel.length&&!confirm('Replace your current session with a new plan?'))return;
+ const C=c=='auto'?data.groups.filter(g=>SMALL.includes(g.name)&&g!==A&&g!==B&&g.exercises.length).sort((x,y)=>gLast(x)-gLast(y))[0]:G(c);
+ sel=[A,B,C,A,B].map((g,i)=>g&&mk('','ABCAB'[i],g.id)).filter(Boolean);data.liveT=0;data.liveSid=0;
  render();openSheet();
 }
-function openSheet(){renderSheet();if(sel.length)$('sheet').showModal()}
+function openSheet(){const el=$('sheet');renderSheet();if(sel.length&&!el.open)el.showModal()}
 function renderSheet(){
  const el=$('sheet');if(!sel.length){el.close();return}
- el.innerHTML=`<div class="cardhead"><h3 style="margin:0">Today's session</h3><button class="secondary" style="padding:7px 12px" id="shClose">Close</button></div>`+sel.map((s,i)=>{const {g,ex}=findExercise(s.id);return `<div class="srow"><div class="cardhead"><div class="exname"><b>${s.tag?`<span class="slot">${s.tag}</span>`:''}${esc(ex.name)}</b><small>${esc(g.name)}${ex.max?' · Working max '+ex.max+' kg':''}</small></div><button class="danger" style="padding:6px 11px" data-rm="${i}">×</button></div><div class="nums">${['kg','reps','sets'].map(k=>`<label>${k}<input type="number" inputmode="decimal" step="any" min="0" data-i="${i}" data-k="${k}" value="${s[k]}"></label>`).join('')}</div><textarea rows="2" data-i="${i}" data-k="note" placeholder="Notes for next time (optional)">${esc(s.note)}</textarea></div>`}).join('')+`<button class="full" id="logBtn">Log workout · <span id="vtot">${nf(vol(sel))}</span> kg</button>`;
- el.querySelectorAll('[data-k]').forEach(i=>i.oninput=()=>{sel[i.dataset.i][i.dataset.k]=i.value;$('vtot').textContent=nf(vol(sel))});
+ const dn=sel.filter(s=>s.done),used=new Set(sel.map(s=>s.id)),G=id=>data.groups.find(g=>g.id==id),
+ opt=(e,v)=>`<option value="${e.id}"${e.id==v?' selected':''}>${EM[stage(e.lastDoneAt)]} ${esc(e.name)} · ${e.lastDoneAt?ago(e.lastDoneAt):'never'}</option>`;
+ el.innerHTML=`<div class="cardhead"><h3 style="margin:0">Today's session</h3><button class="secondary" style="padding:7px 12px" id="shClose">Close</button></div>
+<div class="cardhead" style="margin:8px 0 2px"><span class="small">${dn.length} of ${sel.length} done${dn.length?' · '+nf(vol(dn))+' kg':''}</span><label class="small">Show <select id="fz" style="width:auto;margin:0;padding:6px 8px">${[[0,'all'],[2,'rested or fresher'],[3,'fresh only']].map(([v,t])=>`<option value="${v}"${v==fz?' selected':''}>${t}</option>`).join('')}</select></label></div>`
+ +sel.map((s,i)=>{const f=s.id?findExercise(s.id):null,ex=f&&f.ex,g=s.gid?G(s.gid):f&&f.g,tag=s.tag?`<span class="slot">${s.tag}</span>`:'';
+  if(s.done)return `<div class="srow done"><div class="cardhead"><div class="exname"><b>✓ ${tag}${esc(ex.name)}</b><small>${esc(g.name)} · ${s.kg} kg × ${s.reps} × ${s.sets}</small></div><button class="secondary" style="padding:6px 11px" data-undo="${i}">Undo</button></div></div>`;
+  const pool=s.gid?stale(g).filter(e=>e.id==s.id||!used.has(e.id)&&stage(e.lastDoneAt)>=fz):[];
+  return `<div class="srow"><div class="cardhead"><div class="exname"><b>${tag}${esc(s.gid?g.name:ex.name)}</b>${ex?`<small>${s.gid?'':esc(g.name)+' · '}${ex.max?'Working max '+ex.max+' kg':'No weight logged yet'}</small>`:''}</div><button class="danger" style="padding:6px 11px" data-rm="${i}">×</button></div>`
+  +(s.gid?`<select data-sl="${i}"><option value="">Choose a ${esc(g.name)} exercise (${pool.length})</option>${pool.map(e=>opt(e,s.id)).join('')}</select>`:'')
+  +(ex?`<div class="nums">${['kg','reps','sets'].map(k=>`<label>${k}<input type="number" inputmode="decimal" step="any" min="0" data-i="${i}" data-k="${k}" value="${s[k]}"></label>`).join('')}</div><textarea rows="2" data-i="${i}" data-k="note" placeholder="Notes for next time (optional)">${esc(s.note)}</textarea><button class="full" data-log="${i}">✓ Done · log this exercise</button>`:'')+'</div>'}).join('')
+ +`<select id="addEx" style="margin-top:14px"><option value="">＋ Add an exercise from your library</option>${data.groups.map(g=>{const l=stale(g).filter(e=>!used.has(e.id));return l.length?`<optgroup label="${esc(g.name)}">${l.map(e=>opt(e,'')).join('')}</optgroup>`:''}).join('')}</select><button class="secondary full" id="endBtn">End session</button>`;
+ el.querySelectorAll('[data-k]').forEach(x=>x.oninput=()=>{sel[+x.dataset.i][x.dataset.k]=x.value;save()});
+ el.querySelectorAll('[data-sl]').forEach(x=>x.onchange=()=>{const i=+x.dataset.sl,s=sel[i];sel[i]=mk(x.value,s.tag,s.gid);renderSheet();render()});
  el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{sel.splice(+b.dataset.rm,1);renderSheet();render()});
- $('shClose').onclick=()=>el.close();$('logBtn').onclick=logSession;
+ el.querySelectorAll('[data-log]').forEach(b=>b.onclick=()=>logOne(+b.dataset.log));
+ el.querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>undo(+b.dataset.undo));
+ $('fz').onchange=e=>{fz=+e.target.value;renderSheet()};
+ $('addEx').onchange=e=>{if(e.target.value){sel.push(mk(e.target.value));renderSheet();render()}};
+ $('shClose').onclick=()=>el.close();$('endBtn').onclick=endSession;
 }
-function logSession(){
- const now=Date.now(),items=[];
- sel.forEach(s=>{const {g,ex}=findExercise(s.id),kg=+s.kg||0,reps=+s.reps||0,sets=+s.sets||0;
-  ex.lastDoneAt=now;ex.count=(ex.count||0)+1;ex.history=[...(ex.history||[]),now];ex.last={kg,reps,sets};ex.note=s.note.trim();if(kg>(ex.max||0))ex.max=kg;
-  items.push({n:ex.name,g:g.name,kg,reps,sets})});
- data.sessions.push({t:now,items});sel=[];save();$('sheet').close();render();toast('Workout logged ✓');
+function logOne(i){
+ const s=sel[i],{g,ex}=findExercise(s.id),now=Date.now(),kg=+s.kg||0,reps=+s.reps||0,sets=+s.sets||0;
+ s.prev={last:ex.last||null,max:ex.max||0,note:ex.note||''};
+ ex.lastDoneAt=now;ex.count=(ex.count||0)+1;ex.history=[...(ex.history||[]),now];ex.last={kg,reps,sets};ex.note=s.note.trim();if(kg>(ex.max||0))ex.max=kg;
+ let r=data.sessions.find(x=>x.t==data.liveSid);if(!r){r={t:now,items:[]};data.sessions.push(r);data.liveSid=now}
+ r.items.push({t:now,n:ex.name,g:g.name,kg,reps,sets});Object.assign(s,{done:1,lt:now,kg,reps,sets});
+ save();renderSheet();render();toast(sel.every(x=>x.done)?'Session complete 🎉':'Logged ✓');
 }
+function undo(i){
+ const s=sel[i],{ex}=findExercise(s.id),p=s.prev||{};
+ ex.history=(ex.history||[]).slice(0,-1);ex.count=Math.max(0,(ex.count||1)-1);ex.lastDoneAt=ex.history[ex.history.length-1]||null;ex.last=p.last||null;ex.max=p.max||0;ex.note=p.note||'';
+ const r=data.sessions.find(x=>x.t==data.liveSid);if(r){r.items=r.items.filter(x=>x.t!=s.lt);if(!r.items.length){data.sessions=data.sessions.filter(x=>x!==r);data.liveSid=0}}
+ s.done=0;save();renderSheet();render();
+}
+function endSession(){if(sel.some(s=>!s.done)&&!confirm('End the session? Exercises not yet logged will be discarded.'))return;sel=[];$('sheet').close();render();toast('Session ended')}
 function renderRecap(){
  const {y,m}=rm,S=inMonth(y,m),it=S.flatMap(s=>s.items),v=vol(it),py=m?y:y-1,pmn=(m+11)%12,pv=inMonth(py,pmn).reduce((n,s)=>n+vol(s.items),0),now=new Date(),isNow=y==now.getFullYear()&&m==now.getMonth();
  const f=data.sessions.length?new Date(Math.min(...data.sessions.map(s=>s.t))):now,canBack=y*12+m>f.getFullYear()*12+f.getMonth();
@@ -183,8 +207,8 @@ document.getElementById('addBtn').onclick=()=>{const name=document.getElementByI
 function go(v){document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view==v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==v));window.scrollTo(0,0)}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='rep-rotation-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url)};
-document.getElementById('importFile').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!Array.isArray(x.groups)||!x.groups.every(g=>g.name&&Array.isArray(g.exercises)))throw Error();if(confirm('Replace your current REP ROTATION data with this backup?')){data=migrate(x);save();sel=[];render();alert('Backup restored.')}}catch(e){alert('That backup file could not be read.')}ev.target.value=''};
-document.getElementById('resetBtn').onclick=()=>{if(confirm('Reset all exercise history and custom exercises to the original demo library? Export a backup first if needed.')){data=migrate(makeInitial());sel=[];save();render()}};
+document.getElementById('importFile').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!Array.isArray(x.groups)||!x.groups.every(g=>g.name&&Array.isArray(g.exercises)))throw Error();if(confirm('Replace your current REP ROTATION data with this backup?')){sel=[];data=migrate(x);save();render();alert('Backup restored.')}}catch(e){alert('That backup file could not be read.')}ev.target.value=''};
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Reset all exercise history and custom exercises to the original demo library? Export a backup first if needed.')){sel=[];data=migrate(makeInitial());save();render()}};
 if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
 $('planBtn').onclick=build;render();document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
 </script>
